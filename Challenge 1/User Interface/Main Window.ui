@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>836</width>
+    <height>501</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="mainWidget">
+   <property name="font">
+    <font>
+     <family>Trebuchet MS</family>
+     <pointsize>15</pointsize>
+     <weight>50</weight>
+     <italic>false</italic>
+     <bold>false</bold>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color: rgb(40, 43, 48);
+color: rgb(255,255,255);
+font: 15pt &quot;Trebuchet MS&quot;;</string>
+   </property>
+   <layout class="QGridLayout" name="gridLayout_2">
+    <item row="0" column="10">
+     <widget class="QLabel" name="lbl3">
+      <property name="styleSheet">
+       <string notr="true">color: rgb(40, 43, 48);</string>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="9">
+     <widget class="QLabel" name="lbl2">
+      <property name="styleSheet">
+       <string notr="true">color: rgb(40, 43, 48);</string>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="16">
+     <widget class="QLabel" name="lbl9">
+      <property name="styleSheet">
+       <string notr="true">color: rgb(40, 43, 48);</string>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="13">
+     <widget class="QLabel" name="lbl6">
+      <property name="styleSheet">
+       <string notr="true">color: rgb(40, 43, 48);</string>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="12">
+     <widget class="QLabel" name="lbl5">
+      <property name="styleSheet">
+       <string notr="true">color: rgb(40, 43, 48);</string>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="11">
+     <widget class="QLabel" name="lbl4">
+      <property name="styleSheet">
+       <string notr="true">color: rgb(40, 43, 48);</string>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0" colspan="5">
+     <widget class="QListWidget" name="companyList">
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(54,57,63); 
+</string>
+      </property>
+      <item>
+       <property name="text">
+        <string>Company 0</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Company 1</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Company 2</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Company 3</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Company 4</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Company 5</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string/>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item row="0" column="0">
+     <widget class="QLineEdit" name="searchbar">
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(255,255,255);
+color: rgb(0,0,0);</string>
+      </property>
+      <property name="placeholderText">
+       <string>Type Here to Search...</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QPushButton" name="searchButton">
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(54,57,63); 
+</string>
+      </property>
+      <property name="text">
+       <string>Search</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="14">
+     <widget class="QLabel" name="lbl7">
+      <property name="styleSheet">
+       <string notr="true">color: rgb(40, 43, 48);</string>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="15">
+     <widget class="QLabel" name="lbl8">
+      <property name="styleSheet">
+       <string notr="true">color: rgb(40, 43, 48);</string>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="7" colspan="11">
+     <layout class="QGridLayout" name="canvas"/>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

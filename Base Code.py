@@ -7,6 +7,9 @@ import pandas as pd
 import statsmodels as sm
 import numpy as np
 import requests
+import matplotlib 
+import json
+
 
 
 def main():
