@@ -187,10 +187,10 @@ class MplCanvas(FigureCanvas):
 
     def PlotNextPoint(self):
         """Plots the new location for the projectile each second"""
-        #self.epochs.append(self.__plotCounter)
-        #self.prices.append(np.random.randint(100))
-        Get the epochs from your shit
-        get the prices from your shit
+        self.epochs.append(self.__plotCounter)
+        self.prices.append(np.random.randint(100))
+        #Get the epochs from your code
+        #get the prices from your code
         self.axes.plot(self.epochs,self.prices, "white") # Plots the points so far
         self.draw()  # Redraws the graph
         self.__plotCounter += 1
