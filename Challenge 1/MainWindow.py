@@ -16,7 +16,8 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 # Numpy Library
 import numpy as np
-
+# In House library
+import DataStream
 
 
 class Ui_MainWindow(object):
@@ -65,20 +66,19 @@ class Ui_MainWindow(object):
         self.companyList.setStyleSheet("background-color: rgb(54,57,63); \n"
 "")
         self.companyList.setObjectName("companyList")
-        item = QtWidgets.QListWidgetItem()
-        self.companyList.addItem(item)
-        item = QtWidgets.QListWidgetItem()
-        self.companyList.addItem(item)
-        item = QtWidgets.QListWidgetItem()
-        self.companyList.addItem(item)
-        item = QtWidgets.QListWidgetItem()
-        self.companyList.addItem(item)
-        item = QtWidgets.QListWidgetItem()
-        self.companyList.addItem(item)
-        item = QtWidgets.QListWidgetItem()
-        self.companyList.addItem(item)
-        item = QtWidgets.QListWidgetItem()
-        self.companyList.addItem(item)
+        data = DataStream.DataStream()
+        self.companies = data.MARKET.Companies
+        i = 0
+        for company in self.companies:
+            #print(company.COMPANY_NAME)
+            item = QtWidgets.QListWidgetItem()
+            self.companyList.addItem(item)
+            item = self.companyList.item(i)
+            _translate = QtCore.QCoreApplication.translate
+            item.setText(_translate("MainWindow", company.COMPANY_NAME+" ["+company.SYMBOL+"]"))
+            i += 1
+
+
         self.gridLayout_2.addWidget(self.companyList, 1, 0, 1, 5)
         self.searchbar = QtWidgets.QLineEdit(self.mainWidget)
         self.searchbar.setStyleSheet("background-color: rgb(255,255,255);\n"
@@ -104,6 +104,7 @@ class Ui_MainWindow(object):
         self.canvas.addWidget(self.graph)
         self.gridLayout_2.addLayout(self.canvas, 1, 7, 1, 11)
         MainWindow.setCentralWidget(self.mainWidget)
+        self.companyList.itemSelectionChanged.connect(self.selectionChanged)
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -119,7 +120,7 @@ class Ui_MainWindow(object):
         self.lbl4.setText(_translate("MainWindow", "TextLabel"))
         __sortingEnabled = self.companyList.isSortingEnabled()
         self.companyList.setSortingEnabled(False)
-        item = self.companyList.item(0)
+        """item = self.companyList.item(0)
         item.setText(_translate("MainWindow", "Company 0"))
         item = self.companyList.item(1)
         item.setText(_translate("MainWindow", "Company 1"))
@@ -130,13 +131,15 @@ class Ui_MainWindow(object):
         item = self.companyList.item(4)
         item.setText(_translate("MainWindow", "Company 4"))
         item = self.companyList.item(5)
-        item.setText(_translate("MainWindow", "Company 5"))
+        item.setText(_translate("MainWindow", "Company 5"))"""
         self.companyList.setSortingEnabled(__sortingEnabled)
         self.searchbar.setPlaceholderText(_translate("MainWindow", "Type Here to Search..."))
         self.searchButton.setText(_translate("MainWindow", "Search"))
         self.lbl7.setText(_translate("MainWindow", "TextLabel"))
         self.lbl8.setText(_translate("MainWindow", "TextLabel"))
 
+    def selectionChanged(self):
+        print("Selected items: ", self.companies[self.companyList.currentRow()].COMPANY_NAME)
 
 class MplCanvas(FigureCanvas):
     """Canvas object for the graph to be plotted within"""
@@ -178,10 +181,7 @@ class MplCanvas(FigureCanvas):
         
     def startProjectile(self):
         """Starts the projectile off, once the button has been pressed"""
-        self.__plots = np.zeros(shape=(130, 2))  # Clears the array again
         self.__plotCounter = 0
-        self._GPEarray = []
-        self._KEarray = []
         self.timer.timeout.connect(self.PlotNextPoint)
         self.timer.start(1000)  # Needs to only start when the button pressed
 

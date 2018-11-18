@@ -65,20 +65,12 @@ class Ui_MainWindow(object):
         self.companyList.setStyleSheet("background-color: rgb(54,57,63); \n"
 "")
         self.companyList.setObjectName("companyList")
-        item = QtWidgets.QListWidgetItem()
-        self.companyList.addItem(item)
-        item = QtWidgets.QListWidgetItem()
-        self.companyList.addItem(item)
-        item = QtWidgets.QListWidgetItem()
-        self.companyList.addItem(item)
-        item = QtWidgets.QListWidgetItem()
-        self.companyList.addItem(item)
-        item = QtWidgets.QListWidgetItem()
-        self.companyList.addItem(item)
-        item = QtWidgets.QListWidgetItem()
-        self.companyList.addItem(item)
-        item = QtWidgets.QListWidgetItem()
-        self.companyList.addItem(item)
+        companies = ["A","B","B","B","B","B","B","B","B","B"]
+        for company in companies:
+            item = QtWidgets.QListWidgetItem()
+            self.companyList.addItem(item)
+
+
         self.gridLayout_2.addWidget(self.companyList, 1, 0, 1, 5)
         self.searchbar = QtWidgets.QLineEdit(self.mainWidget)
         self.searchbar.setStyleSheet("background-color: rgb(255,255,255);\n"
@@ -104,6 +96,7 @@ class Ui_MainWindow(object):
         self.canvas.addWidget(self.graph)
         self.gridLayout_2.addLayout(self.canvas, 1, 7, 1, 11)
         MainWindow.setCentralWidget(self.mainWidget)
+        self.companyList.itemSelectionChanged.connect(self.selectionChanged)
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -137,6 +130,8 @@ class Ui_MainWindow(object):
         self.lbl7.setText(_translate("MainWindow", "TextLabel"))
         self.lbl8.setText(_translate("MainWindow", "TextLabel"))
 
+    def selectionChanged(self):
+        print("Selected items: ", self.companyList.currentRow())
 
 class MplCanvas(FigureCanvas):
     """Canvas object for the graph to be plotted within"""
