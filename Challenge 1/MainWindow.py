@@ -21,7 +21,7 @@ import DataStream
 import functions
 
 class Ui_MainWindow(object):
-    
+
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         icon = QtGui.QIcon()
@@ -61,16 +61,23 @@ class Ui_MainWindow(object):
         self.companyList = QtWidgets.QListWidget(self.mainWidget)
         self.companyList.setObjectName("companyList")
         self.data = DataStream.DataStream()
-    
+
         self.comboBox2.addItem("   0  ")
         self.comboBox2.addItem("  10  ")
         self.comboBox2.addItem("  30  ")
         self.comboBox2.addItem("  60  ")
         self.comboBox2.activated[str].connect(self.changeEpoch)
-        
-        
+
+
         self.companies = self.data.MARKET.Companies
-        
+
+        self.DEFAULT_N = 20
+        self.HALF_LIFE = 0
+
+
+        self.recalculateSim(self.DEFAULT_N)
+        self.recalculateExp(self.HALF_LIFE)
+
         i = 0
         for company in self.companies:
             #print(company.COMPANY_NAME)
@@ -80,10 +87,10 @@ class Ui_MainWindow(object):
             _translate = QtCore.QCoreApplication.translate
             item.setText(_translate("MainWindow", company.COMPANY_NAME+" ["+company.SYMBOL+"]"))
             i += 1
-        
-        
 
-        
+
+
+
         self.gridLayout_2.addWidget(self.companyList, 1, 0, 1, 5)
         self.searchbar = QtWidgets.QLineEdit(self.mainWidget)
         self.searchbar.setObjectName("searchbar")
@@ -126,10 +133,10 @@ class Ui_MainWindow(object):
             self.companyList.item(i).setHidden(value)
 
     def searchKeyWord(self):
-        setAllListsHidden(True)
-        
-        
-        
+        self.setAllListsHidden(True)
+
+
+
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Challenge 1: Charting"))
@@ -153,7 +160,7 @@ class Ui_MainWindow(object):
 
     def selectionChanged(self):
         print("Selected items: ", self.companies[self.companyList.currentRow()].COMPANY_NAME)
-        
+
         self.graph.drawCompany(self.companies[self.companyList.currentRow()])
 
     def changeEpoch(self, text):
@@ -164,16 +171,23 @@ class Ui_MainWindow(object):
         if n!=0:
             for company in self.companies:
                 for i in range(len(company.EPOCH_DATA)):
-                    company.EPOCH_DATA[i].SIMPLE_MOV_AVG =0
-                    company.EPOCH_DATA[i].MOV_SD =0
-                    if i!=0:
-                        company.EPOCH_DATA[i].SIMPLE_MOV_AVG = functions.simMovAvg(company.EPOCH_DATA.PRICE[:i+1],company.EPOCH_DATA[i].SIMPLE_MOV_AVG,n)
-                        company.EPOCH_DATA[i].MOV_SD = functions.movStandDev(company.EPOCH_DATA.PRICE,company.EPOCH_DATA[i-1].SIMPLE_MOV_AVG,company.EPOCH_DATA[i].SIMPLE_MOV_AVG,n)
-                    else:
-                        company.EPOCH_DATA[i].SIMPLE_MOV_AVG = functions.simMovAvg(company.EPOCH_DATA.PRICE[:1],company.EPOCH_DATA[0].SIMPLE_MOV_AVG,n)
-                        company.EPOCH_DATA[i].MOV_SD = functions.movStandDev(company.EPOCH_DATA.PRICE,company.EPOCH_DATA[0])
-                    
-    
+                    if company.EPOCH_DATA[i].TRADING:
+                        company.EPOCH_DATA[i].SIMPLE_MOV_AVG =0
+                        company.EPOCH_DATA[i].MOV_SD =0
+                        if i!=0:
+                            pric=[x.PRICE for x in company.EPOCH_DATA[:i+1]]
+                            company.EPOCH_DATA[i].SIMPLE_MOV_AVG = functions.simMovAvg(pric,company.EPOCH_DATA[i-1].SIMPLE_MOV_AVG,n)
+
+
+
+                            if(i<10) :
+                                print("pric: ", pric)
+                            company.EPOCH_DATA[i].MOV_SD = functions.movStandDev(pric,company.EPOCH_DATA[i-1].SIMPLE_MOV_AVG,company.EPOCH_DATA[i].SIMPLE_MOV_AVG,n)
+                        else:
+                            company.EPOCH_DATA[i].SIMPLE_MOV_AVG = functions.simMovAvg([company.EPOCH_DATA[0].PRICE],company.EPOCH_DATA[0].SIMPLE_MOV_AVG,n)
+                            company.EPOCH_DATA[i].MOV_SD = functions.movStandDev([company.EPOCH_DATA[0].PRICE],company.EPOCH_DATA[0].SIMPLE_MOV_AVG,company.EPOCH_DATA[0].SIMPLE_MOV_AVG,n)
+
+
     def recalculateExp(self,halfLife):
         if halfLife!=0:
             for company in self.companies:
@@ -181,26 +195,27 @@ class Ui_MainWindow(object):
                     company.EPOCH_DATA[i].EXP_MOV_AVG = 0
                     company.EPOCH_DATA[i].EXP_MOV_SD = 0
                     if i!=0:
-                        company.EPOCH_DATA[i].SIMPLE_MOV_AVG = functions.expMovAvg(company.EPOCH_DATA.PRICE[:i+1],company.EPOCH_DATA[i-1].EXP_MOV_AVG,halfLife)
-                        company.EPOCH_DATA[i].EX_VAR = functions.expVar(company.EPOCH_DATA.PRICE[i-1],company.EPOCH_DATA[i-1].EXP_MOV_AVG,company.EPOCH_DATA[i-1].EX_VAR,halfLife)
+                        company.EPOCH_DATA[i].EXP_MOV_AVG = functions.expMovAvg(company.EPOCH_DATA[i-1].PRICE,company.EPOCH_DATA[i-1].EXP_MOV_AVG,halfLife)
+                        company.EPOCH_DATA[i].EX_VAR = functions.expVar(company.EPOCH_DATA[i-1].PRICE,company.EPOCH_DATA[i-1].EXP_MOV_AVG,company.EPOCH_DATA[i-1].EX_VAR,halfLife)
                         company.EPOCH_DATA[i].EXP_MOV_SD = functions.expMovStandDev(company.EPOCH_DATA[i].EX_VAR)
                     else:
-                        company.EPOCH_DATA[0].SIMPLE_MOV_AVG = functions.expMovAvg(company.EPOCH_DATA.PRICE[:1],company.EPOCH_DATA[0],halfLife)
-                        company.EPOCH_DATA[0].EX_VAR = functions.expVar(company.EPOCH_DATA.PRICE[0],company.EPOCH_DATA[0].EXP_MOV_AVG,company.EPOCH_DATA[0].EX_VAR,halfLife)
+                        company.EPOCH_DATA[0].EXP_MOV_AVG = functions.expMovAvg(company.EPOCH_DATA[0].PRICE,company.EPOCH_DATA[0],halfLife)
+                        company.EPOCH_DATA[0].EX_VAR = functions.expVar(company.EPOCH_DATA[0].PRICE,company.EPOCH_DATA[0].EXP_MOV_AVG,company.EPOCH_DATA[0].EX_VAR,halfLife)
                         company.EPOCH_DATA[0].EXP_MOV_SD = functions.expMovStandDev(company.EPOCH_DATA[0].EX_VAR)
-                
+
     def refresh(self,n,halfLife):
         if n!=0:
             for company in self.companies:
-                company.EPOCH_DATA[-1].SIMPLE_MOV_AVG = functions.simMovAvg(company.EPOCH_DATA.PRICE,company.EPOCH_DATA[-2].SIMPLE_MOV_AVG,n)
-                company.EPOCH_DATA[-1].MOV_SD = functions.movStandDev(company.EPOCH_DATA.PRICE,company.EPOCH_DATA[-2].SIMPLE_MOV_AVG,company.EPOCH_DATA[-1].SIMPLE_MOV_AVG,n)
+                pric = [x.PRICE for x in company.EPOCH_DATA]
+                company.EPOCH_DATA[-1].SIMPLE_MOV_AVG = functions.simMovAvg(pric,company.EPOCH_DATA[-2].SIMPLE_MOV_AVG,n)
+                company.EPOCH_DATA[-1].MOV_SD = functions.movStandDev(pric,company.EPOCH_DATA[-2].SIMPLE_MOV_AVG,company.EPOCH_DATA[-1].SIMPLE_MOV_AVG,n)
         if halfLife!=0:
             for company in self.companies:
                 company.EPOCH_DATA[-1].EXP_MOV_AVG = functions.expMovAvg(company.EPOCH_DATA.PRICE[-1],company.EPOCH_DATA[-2].EXP_MOV_AVG,halfLife)
                 company.EPOCH_DATA[-1].EX_VAR = functions.expVar(company.EPOCH_DATA.PRICE[-1],company.EPOCH_DATA[-2].EXP_MOV_AVG,company.EPOCH_DATA[-2].EX_VAR,halfLife)
                 company.EPOCH_DATA[-1].EXP_MOV_SD = functions.expMovStandDev(company.EPOCH_DATA[-1].EX_VAR)
 
-    
+
 
     def changeTheme(self,mode):
         if mode == 0:
@@ -223,14 +238,14 @@ class Ui_MainWindow(object):
             self.button9.setStyleSheet("background-color: rgb(201,198,192);")
             self.lbl3.setStyleSheet("color: rgb(0, 0, 0);")
             self.mainWidget.setStyleSheet("background-color: rgb(215, 212, 207);\n color: rgb(0,0,0);\n font: 15pt \"Trebuchet MS\";")
-        
+
         self.graph.changeTheme(mode)
 
     def themeButton(self):
         #print("Theme changed")
         if self.themeMode == 1:
             self.themeMode = 0
-        else:     
+        else:
             self.themeMode = 1
         self.changeTheme(self.themeMode)
 
@@ -253,9 +268,9 @@ class MplCanvas(FigureCanvas):
         self.simpleMA = [0]
         self.expMA = [0]
         # Need vars for sds too
-        
+
         self.changeAnimationElapsed =0
-        
+
         self.startProjectile()
 
     def setupAxis(self):
@@ -272,8 +287,8 @@ class MplCanvas(FigureCanvas):
         self.axes.spines["bottom"].set_color("white")
         self.axes.spines["right"].set_color("#282B30")
         self.axes.spines["top"].set_color("#282B30")
-        
-        
+
+
     def startProjectile(self):
         """Starts the projectile off, once the button has been pressed"""
         self.__plotCounter = 0
@@ -281,36 +296,52 @@ class MplCanvas(FigureCanvas):
         self.timer.start(100)  # Needs to only start when the button pressed
 
     def updateData(self):
-        
+
         self.DATA_POINTER.update()
-        
+
         if self.DATA_POINTER.isUpdateAvailable():
             self.changeAnimationElapsed =0
-            
+
             self.drawCompany(self.DATA_POINTER.MARKET.Companies[self.LIST_VIEW.currentRow()])
         else:
             if self.changeAnimationElapsed <=10:
                 self.drawCompany(self.DATA_POINTER.MARKET.Companies[self.LIST_VIEW.currentRow()])
-        
-    
+
+
 
     def drawCompany(self,comp):
         xAxis = []
         yAxis = []
-        for e in comp.EPOCH_DATA:
-            xAxis.append(e.TIMESTAMP)
-            yAxis.append(e.PRICE)
+        color = "white"
             #print("Time: ",e.TIMESTAMP, "Price: ",e.PREV_PRICE )
         self.axes.clear()
         self.axes.set_xlabel("Epoch", fontsize=50)
         self.axes.set_ylabel("Price", fontsize=50)
+
+        for e in comp.EPOCH_DATA:
+           xAxis.append(e.TIMESTAMP)
+           yAxis.append(e.PRICE)
+        self.plotGraph(xAxis,yAxis,color, "-")
+
+        xAxis = []
+        yAxis = []
+        for e in comp.EPOCH_DATA:
+            #if i>wind:
+                if(e.SIMPLE_MOV_AVG !=0):
+
+                    xAxis.append(e.TIMESTAMP)
+                    yAxis.append(e.SIMPLE_MOV_AVG)
+            #i+=1
+        self.plotGraph(xAxis,yAxis,color, "--")
+
+        self.draw()
+        self.changeAnimationElapsed+=1
+
+    def plotGraph(self, xAxis,yAxis, defaultColor, line):
         if self.changeAnimationElapsed <10:
             self.axes.plot(xAxis,yAxis, "red")
         else:
-            self.axes.plot(xAxis,yAxis, "white")
-        self.draw()
-        
-        self.changeAnimationElapsed+=1
+            self.axes.plot(xAxis,yAxis, defaultColor, linestyle =line)
 
     def PlotNextPoint(self):
         """Plots the new location for the projectile each second"""
@@ -340,9 +371,9 @@ class MplCanvas(FigureCanvas):
             self.axes.tick_params(axis="y", colors="black")
             self.axes.tick_params(axis="x", colors="black")
             self.axes.title.set_color("black")
-            self.axes.set_facecolor("#D7D4CF") 
+            self.axes.set_facecolor("#D7D4CF")
             self.axes.spines["left"].set_color("black")
-            self.axes.spines["bottom"].set_color("black") 
+            self.axes.spines["bottom"].set_color("black")
             self.axes.spines["right"].set_color("#D7D4CF")
             self.axes.spines["top"].set_color("#D7D4CF")
             self.fig.set_facecolor("#D7D4CF")
@@ -357,4 +388,3 @@ if __name__ == "__main__":
     ui.setupUi(MainWindow)
     MainWindow.show()
     sys.exit(app.exec_())
-

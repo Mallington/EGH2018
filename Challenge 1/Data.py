@@ -56,12 +56,12 @@ class Epoch():
     SIMPLE_MOV_AVG =0
     EXP_MOV_AVG =0
     MOV_SD =0
-    EXP_MOV_SD =0;
+    EXP_MOV_SD =0
+    EX_VAR =0
     
-    
-    TIMESTAMP = 0;
-    PREV_PRICE =0;
-    PRICE = 0;
+    TIMESTAMP = 0
+    PREV_PRICE =0
+    PRICE = 0
     DELTA_RATIO =0
     TRADING = True #Boolean denotes whether it is trading
     def __init__(self, epochJSON):

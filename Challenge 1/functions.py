@@ -3,9 +3,11 @@ from math import exp,log
 def simMovAvg(data,lastAvg,n):
     if len(data)<=n:
         #return(sum(data[-n:])/n)
-        return lastaverage+data[-1]
+        print()
+        print ("lastAvg: ",lastAvg, "length: ", len(data))
+        return float(lastAvg*(len(data)-1)+data[-1])/len(data)
     else:
-        return lastaverage+data[-1]-data[-1-n]
+        return lastAvg+(data[-1]-data[-1-n])/n
 
 def getα(halfLife):
     return exp(log(0.5)/halfLife)
