@@ -91,6 +91,7 @@ class Ui_MainWindow(object):
         self.canvas.addWidget(self.graph)
         self.gridLayout_2.addLayout(self.canvas, 1, 7, 1, 11)
         MainWindow.setCentralWidget(self.mainWidget)
+        self.companyList.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
         self.companyList.itemSelectionChanged.connect(self.selectionChanged)
 
         self.themeMode = 0
