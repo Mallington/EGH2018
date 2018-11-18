@@ -21,6 +21,7 @@ import DataStream
 
 
 class Ui_MainWindow(object):
+    
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1650,1080)
@@ -66,8 +67,10 @@ class Ui_MainWindow(object):
         self.companyList.setStyleSheet("background-color: rgb(54,57,63); \n"
 "")
         self.companyList.setObjectName("companyList")
-        data = DataStream.DataStream()
-        self.companies = data.MARKET.Companies
+        self.data = DataStream.DataStream()
+        
+        self.companies = self.data.MARKET.Companies
+        
         i = 0
         for company in self.companies:
             #print(company.COMPANY_NAME)
@@ -100,7 +103,7 @@ class Ui_MainWindow(object):
         self.gridLayout_2.addWidget(self.lbl8, 0, 15, 1, 1)
         self.canvas = QtWidgets.QGridLayout()
         self.canvas.setObjectName("canvas")
-        self.graph = MplCanvas(self.mainWidget)
+        self.graph = MplCanvas(self.data,self.companyList,self.mainWidget)
         self.canvas.addWidget(self.graph)
         self.gridLayout_2.addLayout(self.canvas, 1, 7, 1, 11)
         MainWindow.setCentralWidget(self.mainWidget)
@@ -140,11 +143,15 @@ class Ui_MainWindow(object):
 
     def selectionChanged(self):
         print("Selected items: ", self.companies[self.companyList.currentRow()].COMPANY_NAME)
+        
+        self.graph.drawCompany(self.companies[self.companyList.currentRow()])
 
 class MplCanvas(FigureCanvas):
     """Canvas object for the graph to be plotted within"""
-    def __init__(self, parent=None):
+    def __init__(self, dataPointer,listView, parent=None):
         """Instantiates the subplots"""
+        self.DATA_POINTER = dataPointer
+        self.LIST_VIEW = listView
         fig = Figure()
         FigureCanvas.__init__(self, fig)
         self.axes = fig.add_subplot(111)
@@ -157,14 +164,16 @@ class MplCanvas(FigureCanvas):
         self.expMA = [0]
         # Need vars for sds too
         
+        self.changeAnimationElapsed =0
+        
         self.startProjectile()
 
 
     def setupAxis(self):
         """Sets up the axis to stop them from skewing"""
-        self.axes.set_autoscale_on(False)  # Stops the graph from changing in size, skewing the projectile's motion
-        self.axes.set_xlim(0, 100)  # Sets the range for the plot to work on
-        self.axes.set_ylim(0, 100)
+        #self.axes.set_autoscale_on(True)  # Stops the graph from changing in size, skewing the projectile's motion
+        #self.axes.set_xlim(0, 100)  # Sets the range for the plot to work on
+        #self.axes.set_ylim(0, 100)
         self.axes.set_xlabel("Epoch")
         self.axes.set_ylabel("Price")
         self.axes.yaxis.label.set_color("white")
@@ -182,8 +191,38 @@ class MplCanvas(FigureCanvas):
     def startProjectile(self):
         """Starts the projectile off, once the button has been pressed"""
         self.__plotCounter = 0
-        self.timer.timeout.connect(self.PlotNextPoint)
-        self.timer.start(1000)  # Needs to only start when the button pressed
+        self.timer.timeout.connect(self.updateData)
+        self.timer.start(100)  # Needs to only start when the button pressed
+
+    def updateData(self):
+        
+        self.DATA_POINTER.update()
+        
+        if self.DATA_POINTER.isUpdateAvailable():
+            self.changeAnimationElapsed =0
+            
+            self.drawCompany(self.DATA_POINTER.MARKET.Companies[self.LIST_VIEW.currentRow()])
+        else:
+            if self.changeAnimationElapsed <=10:
+                self.drawCompany(self.DATA_POINTER.MARKET.Companies[self.LIST_VIEW.currentRow()])
+        
+        
+
+    def drawCompany(self,comp):
+        xAxis = []
+        yAxis = []
+        for e in comp.EPOCH_DATA:
+            xAxis.append(e.TIMESTAMP)
+            yAxis.append(e.PREV_PRICE)
+            #print("Time: ",e.TIMESTAMP, "Price: ",e.PREV_PRICE )
+        self.axes.clear()
+        if self.changeAnimationElapsed <10:
+            self.axes.plot(xAxis,yAxis, "red")
+        else:
+            self.axes.plot(xAxis,yAxis, "white")
+        self.draw()
+        
+        self.changeAnimationElapsed+=1
 
     def PlotNextPoint(self):
         """Plots the new location for the projectile each second"""

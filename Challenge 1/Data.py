@@ -17,7 +17,7 @@ class Market():
     def printLatestEpocs(self):
         for comp in self.Companies:
             e =comp.EPOCH_DATA[-1]
-            print("Company: ",comp.ID,"Price: ",e.PRICE)
+            #print("Company: ",comp.ID,"Price: ",e.PRICE)
     
     
     def updateCompanies(self, jsonEpochs):
@@ -40,15 +40,14 @@ class Company():
         
         
     def addEpoch(self, dictionary):
-        print("Updating COMPANY: ",self.COMPANY_NAME, ", ID: ",self.ID)
+        
         
         epochJSON = self.getEpoch(dictionary,self.ID )
         if epochJSON['epoch']> self.lastUpdate:
+            #print("Updating COMPANY: ",self.COMPANY_NAME, ", ID: ",self.ID)
             self.lastUpdate = epochJSON['epoch']
             newEpoch = Epoch(epochJSON)
             self.EPOCH_DATA.append(newEpoch)
-        else:
-            print("Already had this update")
         
         
         
