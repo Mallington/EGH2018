@@ -166,6 +166,8 @@ class Ui_MainWindow(object):
 
     def changeEpoch(self, text):
         n = int(text)
+        self.recalculateSim(self.DEFAULT_N)
+        #self.graph.
         print(n)
 
     def recalculateSim(self,n):
@@ -253,6 +255,7 @@ class Ui_MainWindow(object):
 
 class MplCanvas(FigureCanvas):
     """Canvas object for the graph to be plotted within"""
+    
 
     def __init__(self, dataPointer,listView,halfLife, mainWindow, parent=None):
 
@@ -260,7 +263,7 @@ class MplCanvas(FigureCanvas):
         self.MAIN_WINDOW = mainWindow
         
         self.halfLife = halfLife
-        self.window = window
+        #self.window = window
         self.DATA_POINTER = dataPointer
         self.LIST_VIEW = listView
         self.fig = Figure()
@@ -300,8 +303,11 @@ class MplCanvas(FigureCanvas):
         self.timer.timeout.connect(self.updateData)
         self.timer.start(100)  # Needs to only start when the button pressed
 
-    def updateData(self):
+    def forceUpdate(self):
+        self.drawCompany(self.DATA_POINTER.MARKET.Companies[self.LIST_VIEW.currentRow()])
 
+    def updateData(self):
+        
         self.DATA_POINTER.update()
 
         if self.DATA_POINTER.isUpdateAvailable():

@@ -3,8 +3,6 @@ from math import exp,log
 def simMovAvg(data,lastAvg,n):
     if len(data)<=n:
         #return(sum(data[-n:])/n)
-        print()
-        print ("lastAvg: ",lastAvg, "length: ", len(data))
         return float(lastAvg*(len(data)-1)+data[-1])/len(data)
     else:
         return lastAvg+(data[-1]-data[-1-n])/n
