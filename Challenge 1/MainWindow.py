@@ -113,10 +113,15 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-    def setAllVisible():
-        for i in range(element)
-            element.setHidden(False)
-        #self.companyList.item(4).setHidden(True)
+    def setAllListsHidden(self, value):
+        for i in range(self.companyList.count()):
+            self.companyList.item(i).setHidden(value)
+    
+    def searchKeyWord:
+        setAllListsHidden(True)
+        
+        
+        
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
@@ -149,7 +154,7 @@ class Ui_MainWindow(object):
     def recalculateSim(self,n):
         if n!=0:
             for company in self.companies:
-                for i in range(len(company.EPOCH_DATA)):
+                for i iEn range(len(company.EPOCH_DATA)):
                     company.EPOCH_DATA[i].SIMPLE_MOV_AVG =0
                     company.EPOCH_DATA[i].MOV_SD =0
                     if i!=0:
