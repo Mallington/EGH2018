@@ -39,25 +39,32 @@ class Ui_MainWindow(object):
         self.lbl3 = QtWidgets.QLabel(self.mainWidget)
         self.lbl3.setObjectName("lbl3")
         self.gridLayout_2.addWidget(self.lbl3, 0, 10, 1, 1)
-        self.lbl2 = QtWidgets.QLabel(self.mainWidget)
-        self.lbl2.setObjectName("lbl2")
-        self.gridLayout_2.addWidget(self.lbl2, 0, 9, 1, 1)
+        self.comboBox2 = QtWidgets.QComboBox(self.mainWidget)
+        self.comboBox2.setObjectName("comboBox2")
+        self.gridLayout_2.addWidget(self.comboBox2, 0, 9, 1, 1)
         self.button9 = QtWidgets.QPushButton(self.mainWidget)
         self.button9.setObjectName("button9")
         self.button9.clicked.connect(self.themeButton)
         self.gridLayout_2.addWidget(self.button9, 0, 16, 1, 1)
         self.lbl6 = QtWidgets.QLabel(self.mainWidget)
         self.lbl6.setObjectName("lbl6")
-        self.gridLayout_2.addWidget(self.lbl6, 0, 13, 1, 1)
+        self.gridLayout_2.addWidget(self.lbl6, 0, 11, 1, 1)
         self.lbl5 = QtWidgets.QLabel(self.mainWidget)
         self.lbl5.setObjectName("lbl5")
         self.gridLayout_2.addWidget(self.lbl5, 0, 12, 1, 1)
-        self.lbl4 = QtWidgets.QLabel(self.mainWidget)
-        self.lbl4.setObjectName("lbl4")
-        self.gridLayout_2.addWidget(self.lbl4, 0, 11, 1, 1)
+        self.lineBox5 = QtWidgets.QLineEdit(self.mainWidget)
+        self.lineBox5.setObjectName("lineBox5")
+        self.gridLayout_2.addWidget(self.lineBox5, 0, 13, 1, 1)
         self.companyList = QtWidgets.QListWidget(self.mainWidget)
         self.companyList.setObjectName("companyList")
         self.data = DataStream.DataStream()
+    
+        self.comboBox2.addItem("   0  ")
+        self.comboBox2.addItem("  10  ")
+        self.comboBox2.addItem("  30  ")
+        self.comboBox2.addItem("  60  ")
+        self.comboBox2.activated[str].connect(self.changeEpoch)
+        
         
         self.companies = self.data.MARKET.Companies
         
@@ -70,8 +77,10 @@ class Ui_MainWindow(object):
             _translate = QtCore.QCoreApplication.translate
             item.setText(_translate("MainWindow", company.COMPANY_NAME+" ["+company.SYMBOL+"]"))
             i += 1
+        
+        
 
-
+        
         self.gridLayout_2.addWidget(self.companyList, 1, 0, 1, 5)
         self.searchbar = QtWidgets.QLineEdit(self.mainWidget)
         self.searchbar.setObjectName("searchbar")
@@ -87,7 +96,12 @@ class Ui_MainWindow(object):
         self.gridLayout_2.addWidget(self.lbl8, 0, 15, 1, 1)
         self.canvas = QtWidgets.QGridLayout()
         self.canvas.setObjectName("canvas")
-        self.graph = MplCanvas(self.data,self.companyList,self.mainWidget)
+        halfLifeText = self.lineBox5.text()
+        if halfLifeText == "":
+            halfLife = 0
+        else:
+            halfLife = int(halfLifeText)
+        self.graph = MplCanvas(self.data,self.companyList,self.mainWidget,halfLife)
         self.canvas.addWidget(self.graph)
         self.gridLayout_2.addLayout(self.canvas, 1, 7, 1, 11)
         MainWindow.setCentralWidget(self.mainWidget)
@@ -98,15 +112,19 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
+    def setAllVisible():
+        for i in range(element)
+            element.setHidden(False)
+        #self.companyList.item(4).setHidden(True)
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.lbl3.setText(_translate("MainWindow", "TextLabel"))
-        self.lbl2.setText(_translate("MainWindow", "TextLabel"))
+        self.lbl3.setText(_translate("MainWindow", "MA Window"))
+        #self.comboBox2.setText(_translate("MainWindow", "TextLabel"))
         self.button9.setText(_translate("MainWindow", "Change Theme"))
         self.lbl6.setText(_translate("MainWindow", "TextLabel"))
         self.lbl5.setText(_translate("MainWindow", "TextLabel"))
-        self.lbl4.setText(_translate("MainWindow", "TextLabel"))
+        self.lineBox5.setPlaceholderText(_translate("MainWindow", "Half-Life Ex"))
         __sortingEnabled = self.companyList.isSortingEnabled()
         self.companyList.setSortingEnabled(False)
         self.companyList.setSortingEnabled(__sortingEnabled)
@@ -115,6 +133,7 @@ class Ui_MainWindow(object):
         self.lbl7.setText(_translate("MainWindow", "TextLabel"))
         self.lbl8.setText(_translate("MainWindow", "TextLabel"))
         self.searchbar.setStyleSheet("background-color: rgb(255,255,255);\n color: rgb(0,0,0);")
+        self.lineBox5.setStyleSheet("background-color: rgb(255, 255, 255); \n color: rgb(0, 0, 0);") # 215, 212, 207
 
 
     def selectionChanged(self):
@@ -122,6 +141,9 @@ class Ui_MainWindow(object):
         
         self.graph.drawCompany(self.companies[self.companyList.currentRow()])
 
+    def changeEpoch(self, text):
+        n = int(text)
+        print(n)
 
     def changeTheme(self,mode):
         if mode == 0:
@@ -129,24 +151,22 @@ class Ui_MainWindow(object):
             self.lbl8.setStyleSheet("color: rgb(40, 43, 48);")
             self.searchButton.setStyleSheet("background-color: rgb(54,57,63); \n")
             self.companyList.setStyleSheet("background-color: rgb(54,57,63); \n")
-            self.lbl4.setStyleSheet("color: rgb(40, 43, 48);")
             self.lbl5.setStyleSheet("color: rgb(40, 43, 48);")
             self.lbl6.setStyleSheet("color: rgb(40, 43, 48);")
-            self.lbl2.setStyleSheet("color: rgb(40, 43, 48);")
+            self.comboBox2.setStyleSheet("background-color: rgb(54, 57, 63); \n color: rgb(255, 255, 255);")
             self.button9.setStyleSheet("background-color: rgb(54,57,63);")
-            self.lbl3.setStyleSheet("color: rgb(40, 43, 48);")
+            self.lbl3.setStyleSheet("color: rgb(255, 255, 255);")
             self.mainWidget.setStyleSheet("background-color: rgb(40, 43, 48);\n color: rgb(255,255,255);\n font: 15pt \"Trebuchet MS\";")
         else:
             self.lbl7.setStyleSheet("color: rgb(215, 212, 207);")
             self.lbl8.setStyleSheet("color: rgb(215, 212, 207);")
             self.searchButton.setStyleSheet("background-color: rgb(201,198,192); \n")
             self.companyList.setStyleSheet("background-color: rgb(201,198,192); \n")
-            self.lbl4.setStyleSheet("color: rgb(215, 212, 207);")
             self.lbl5.setStyleSheet("color: rgb(215, 212, 207);")
             self.lbl6.setStyleSheet("color: rgb(215, 212, 207);")
-            self.lbl2.setStyleSheet("color: rgb(215, 212, 207);")
+            self.comboBox2.setStyleSheet("background-color: rgb(201,198,192); \n color: rgb(255, 255, 255);")
             self.button9.setStyleSheet("background-color: rgb(201,198,192);")
-            self.lbl3.setStyleSheet("color: rgb(215, 212, 207);")
+            self.lbl3.setStyleSheet("color: rgb(0, 0, 0);")
             self.mainWidget.setStyleSheet("background-color: rgb(215, 212, 207);\n color: rgb(0,0,0);\n font: 15pt \"Trebuchet MS\";")
         
         self.graph.changeTheme(mode)
@@ -162,8 +182,9 @@ class Ui_MainWindow(object):
 
 class MplCanvas(FigureCanvas):
     """Canvas object for the graph to be plotted within"""
-    def __init__(self, dataPointer,listView, parent=None):
+    def __init__(self, dataPointer,listView,halfLife, parent=None):
         """Instantiates the subplots"""
+        self.halfLife = halfLife
         self.DATA_POINTER = dataPointer
         self.LIST_VIEW = listView
         self.fig = Figure()
