@@ -16,7 +16,8 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 # Numpy Library
 import numpy as np
-
+# In House library
+import DataStream
 
 
 class Ui_MainWindow(object):
@@ -31,63 +32,54 @@ class Ui_MainWindow(object):
         font.setItalic(False)
         font.setWeight(50)
         self.mainWidget.setFont(font)
-        self.mainWidget.setStyleSheet("background-color: rgb(40, 43, 48);\n"
-"color: rgb(255,255,255);\n"
-"font: 15pt \"Trebuchet MS\";")
         self.mainWidget.setObjectName("mainWidget")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.mainWidget)
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.lbl3 = QtWidgets.QLabel(self.mainWidget)
-        self.lbl3.setStyleSheet("color: rgb(40, 43, 48);")
         self.lbl3.setObjectName("lbl3")
         self.gridLayout_2.addWidget(self.lbl3, 0, 10, 1, 1)
         self.lbl2 = QtWidgets.QLabel(self.mainWidget)
-        self.lbl2.setStyleSheet("color: rgb(40, 43, 48);")
         self.lbl2.setObjectName("lbl2")
         self.gridLayout_2.addWidget(self.lbl2, 0, 9, 1, 1)
-        self.lbl9 = QtWidgets.QLabel(self.mainWidget)
-        self.lbl9.setStyleSheet("color: rgb(40, 43, 48);")
-        self.lbl9.setObjectName("lbl9")
-        self.gridLayout_2.addWidget(self.lbl9, 0, 16, 1, 1)
+        self.button9 = QtWidgets.QPushButton(self.mainWidget) # Changed to button
+        self.button9.setObjectName("button9")
+        self.button9.clicked.connect(self.themeButton)
+        self.gridLayout_2.addWidget(self.button9, 0, 16, 1, 1)
         self.lbl6 = QtWidgets.QLabel(self.mainWidget)
-        self.lbl6.setStyleSheet("color: rgb(40, 43, 48);")
         self.lbl6.setObjectName("lbl6")
         self.gridLayout_2.addWidget(self.lbl6, 0, 13, 1, 1)
         self.lbl5 = QtWidgets.QLabel(self.mainWidget)
-        self.lbl5.setStyleSheet("color: rgb(40, 43, 48);")
         self.lbl5.setObjectName("lbl5")
         self.gridLayout_2.addWidget(self.lbl5, 0, 12, 1, 1)
         self.lbl4 = QtWidgets.QLabel(self.mainWidget)
-        self.lbl4.setStyleSheet("color: rgb(40, 43, 48);")
         self.lbl4.setObjectName("lbl4")
         self.gridLayout_2.addWidget(self.lbl4, 0, 11, 1, 1)
         self.companyList = QtWidgets.QListWidget(self.mainWidget)
-        self.companyList.setStyleSheet("background-color: rgb(54,57,63); \n"
-"")
         self.companyList.setObjectName("companyList")
-        companies = ["A","B","B","B","B","B","B","B","B","B"]
-        for company in companies:
+        data = DataStream.DataStream()
+        self.companies = data.MARKET.Companies
+        i = 0
+        for company in self.companies:
+            #print(company.COMPANY_NAME)
             item = QtWidgets.QListWidgetItem()
             self.companyList.addItem(item)
+            item = self.companyList.item(i)
+            _translate = QtCore.QCoreApplication.translate
+            item.setText(_translate("MainWindow", company.COMPANY_NAME+" ["+company.SYMBOL+"]"))
+            i += 1
 
 
         self.gridLayout_2.addWidget(self.companyList, 1, 0, 1, 5)
         self.searchbar = QtWidgets.QLineEdit(self.mainWidget)
-        self.searchbar.setStyleSheet("background-color: rgb(255,255,255);\n"
-"color: rgb(0,0,0);")
         self.searchbar.setObjectName("searchbar")
         self.gridLayout_2.addWidget(self.searchbar, 0, 0, 1, 1)
         self.searchButton = QtWidgets.QPushButton(self.mainWidget)
-        self.searchButton.setStyleSheet("background-color: rgb(54,57,63); \n"
-"")
         self.searchButton.setObjectName("searchButton")
         self.gridLayout_2.addWidget(self.searchButton, 0, 1, 1, 1)
         self.lbl7 = QtWidgets.QLabel(self.mainWidget)
-        self.lbl7.setStyleSheet("color: rgb(40, 43, 48);")
         self.lbl7.setObjectName("lbl7")
         self.gridLayout_2.addWidget(self.lbl7, 0, 14, 1, 1)
         self.lbl8 = QtWidgets.QLabel(self.mainWidget)
-        self.lbl8.setStyleSheet("color: rgb(40, 43, 48);")
         self.lbl8.setObjectName("lbl8")
         self.gridLayout_2.addWidget(self.lbl8, 0, 15, 1, 1)
         self.canvas = QtWidgets.QGridLayout()
@@ -97,8 +89,9 @@ class Ui_MainWindow(object):
         self.gridLayout_2.addLayout(self.canvas, 1, 7, 1, 11)
         MainWindow.setCentralWidget(self.mainWidget)
         self.companyList.itemSelectionChanged.connect(self.selectionChanged)
-
+        self.themeMode = 0
         self.retranslateUi(MainWindow)
+        self.changeTheme(self.themeMode)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -106,43 +99,69 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.lbl3.setText(_translate("MainWindow", "TextLabel"))
         self.lbl2.setText(_translate("MainWindow", "TextLabel"))
-        self.lbl9.setText(_translate("MainWindow", "TextLabel"))
+        self.button9.setText(_translate("MainWindow", "Change Theme"))
         self.lbl6.setText(_translate("MainWindow", "TextLabel"))
         self.lbl5.setText(_translate("MainWindow", "TextLabel"))
         self.lbl4.setText(_translate("MainWindow", "TextLabel"))
         __sortingEnabled = self.companyList.isSortingEnabled()
         self.companyList.setSortingEnabled(False)
-        item = self.companyList.item(0)
-        item.setText(_translate("MainWindow", "Company 0"))
-        item = self.companyList.item(1)
-        item.setText(_translate("MainWindow", "Company 1"))
-        item = self.companyList.item(2)
-        item.setText(_translate("MainWindow", "Company 2"))
-        item = self.companyList.item(3)
-        item.setText(_translate("MainWindow", "Company 3"))
-        item = self.companyList.item(4)
-        item.setText(_translate("MainWindow", "Company 4"))
-        item = self.companyList.item(5)
-        item.setText(_translate("MainWindow", "Company 5"))
         self.companyList.setSortingEnabled(__sortingEnabled)
         self.searchbar.setPlaceholderText(_translate("MainWindow", "Type Here to Search..."))
         self.searchButton.setText(_translate("MainWindow", "Search"))
         self.lbl7.setText(_translate("MainWindow", "TextLabel"))
         self.lbl8.setText(_translate("MainWindow", "TextLabel"))
+        self.searchbar.setStyleSheet("background-color: rgb(255,255,255);\n color: rgb(0,0,0);")
+
+    def changeTheme(self,mode):
+        if mode == 0:
+            self.lbl7.setStyleSheet("color: rgb(40, 43, 48);")
+            self.lbl8.setStyleSheet("color: rgb(40, 43, 48);")
+            self.searchButton.setStyleSheet("background-color: rgb(54,57,63); \n")
+            self.companyList.setStyleSheet("background-color: rgb(54,57,63); \n")
+            self.lbl4.setStyleSheet("color: rgb(40, 43, 48);")
+            self.lbl5.setStyleSheet("color: rgb(40, 43, 48);")
+            self.lbl6.setStyleSheet("color: rgb(40, 43, 48);")
+            self.lbl2.setStyleSheet("color: rgb(40, 43, 48);")
+            self.button9.setStyleSheet("background-color: rgb(54,57,63);")
+            self.lbl3.setStyleSheet("color: rgb(40, 43, 48);")
+            self.mainWidget.setStyleSheet("background-color: rgb(40, 43, 48);\n color: rgb(255,255,255);\n font: 15pt \"Trebuchet MS\";")
+        else:
+            self.lbl7.setStyleSheet("color: rgb(215, 212, 207);")
+            self.lbl8.setStyleSheet("color: rgb(215, 212, 207);")
+            self.searchButton.setStyleSheet("background-color: rgb(201,198,192); \n")
+            self.companyList.setStyleSheet("background-color: rgb(201,198,192); \n")
+            self.lbl4.setStyleSheet("color: rgb(215, 212, 207);")
+            self.lbl5.setStyleSheet("color: rgb(215, 212, 207);")
+            self.lbl6.setStyleSheet("color: rgb(215, 212, 207);")
+            self.lbl2.setStyleSheet("color: rgb(215, 212, 207);")
+            self.button9.setStyleSheet("background-color: rgb(201,198,192);")
+            self.lbl3.setStyleSheet("color: rgb(215, 212, 207);")
+            self.mainWidget.setStyleSheet("background-color: rgb(215, 212, 207);\n color: rgb(0,0,0);\n font: 15pt \"Trebuchet MS\";")
+        
+        self.graph.changeTheme(mode)
+
 
     def selectionChanged(self):
-        print("Selected items: ", self.companyList.currentRow())
+        print("Selected items: ", self.companies[self.companyList.currentRow()].COMPANY_NAME)
+        
+    def themeButton(self):
+        print("Theme changed")
+        if self.themeMode == 1:
+            self.themeMode = 0
+        else:     
+            self.themeMode = 1
+        self.changeTheme(self.themeMode)
+        
 
 class MplCanvas(FigureCanvas):
     """Canvas object for the graph to be plotted within"""
     def __init__(self, parent=None):
         """Instantiates the subplots"""
-        fig = Figure()
-        FigureCanvas.__init__(self, fig)
-        self.axes = fig.add_subplot(111)
+        self.fig = Figure()
+        FigureCanvas.__init__(self, self.fig)
+        self.axes = self.fig.add_subplot(111)
         self.setupAxis()
         self.timer = QtCore.QTimer(self)
-        fig.set_facecolor("#282B30")
         self.epochs = []
         self.prices = []
         self.simpleMA = [0]
@@ -157,28 +176,15 @@ class MplCanvas(FigureCanvas):
         self.axes.set_autoscale_on(False)  # Stops the graph from changing in size, skewing the projectile's motion
         self.axes.set_xlim(0, 100)  # Sets the range for the plot to work on
         self.axes.set_ylim(0, 100)
-        self.axes.set_xlabel("Epoch")
-        self.axes.set_ylabel("Price")
-        self.axes.yaxis.label.set_color("white")
-        self.axes.xaxis.label.set_color("white")
-        self.axes.tick_params(axis="y", colors="white")
-        self.axes.tick_params(axis="x", colors="white")
-        self.axes.title.set_color("white")
-        self.axes.set_facecolor("#282B30")
-        self.axes.spines["left"].set_color("white")
-        self.axes.spines["bottom"].set_color("white")
-        self.axes.spines["right"].set_color("#282B30")
-        self.axes.spines["top"].set_color("#282B30")
+        self.axes.set_xlabel("Epoch", fontsize=50)
+        self.axes.set_ylabel("Price", fontsize=50)
         
         
     def startProjectile(self):
         """Starts the projectile off, once the button has been pressed"""
-        self.__plots = np.zeros(shape=(130, 2))  # Clears the array again
         self.__plotCounter = 0
-        self._GPEarray = []
-        self._KEarray = []
         self.timer.timeout.connect(self.PlotNextPoint)
-        self.timer.start(1000)  # Needs to only start when the button pressed
+        self.timer.start(10)  # Needs to only start when the button pressed
 
     def PlotNextPoint(self):
         """Plots the new location for the projectile each second"""
@@ -190,6 +196,32 @@ class MplCanvas(FigureCanvas):
         self.draw()  # Redraws the graph
         self.__plotCounter += 1
 
+    def changeTheme(self, mode):
+        if mode == 0:
+            self.axes.yaxis.label.set_color("white")
+            self.axes.xaxis.label.set_color("white")
+            self.axes.tick_params(axis="y", colors="white")
+            self.axes.tick_params(axis="x", colors="white")
+            self.axes.title.set_color("white")
+            self.axes.set_facecolor("#282B30")
+            self.axes.spines["left"].set_color("white")
+            self.axes.spines["bottom"].set_color("white")
+            self.axes.spines["right"].set_color("#282B30")
+            self.axes.spines["top"].set_color("#282B30")
+            self.fig.set_facecolor("#282B30")
+
+        else:
+            self.axes.yaxis.label.set_color("black")
+            self.axes.xaxis.label.set_color("black")
+            self.axes.tick_params(axis="y", colors="black")
+            self.axes.tick_params(axis="x", colors="black")
+            self.axes.title.set_color("black")
+            self.axes.set_facecolor("#D7D4CF") 
+            self.axes.spines["left"].set_color("black")
+            self.axes.spines["bottom"].set_color("black") 
+            self.axes.spines["right"].set_color("#D7D4CF")
+            self.axes.spines["top"].set_color("#D7D4CF")
+            self.fig.set_facecolor("#D7D4CF")
 
 if __name__ == "__main__":
     import sys
