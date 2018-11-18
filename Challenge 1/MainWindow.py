@@ -68,6 +68,13 @@ class Ui_MainWindow(object):
         
         self.companies = self.data.MARKET.Companies
         
+        self.DEFAULT_N = 20
+        self.HALF_LIFE = 0
+        
+        
+        self.recalculateSim(self.DEFAULT_N)
+        self.recalculateExp(self.HALF_LIFE)
+        
         i = 0
         for company in self.companies:
             #print(company.COMPANY_NAME)
@@ -117,8 +124,8 @@ class Ui_MainWindow(object):
         for i in range(self.companyList.count()):
             self.companyList.item(i).setHidden(value)
     
-    def searchKeyWord:
-        setAllListsHidden(True)
+    def searchKeyWord(self):
+        self.setAllListsHidden(True)
         
         
         
@@ -154,15 +161,17 @@ class Ui_MainWindow(object):
     def recalculateSim(self,n):
         if n!=0:
             for company in self.companies:
-                for i iEn range(len(company.EPOCH_DATA)):
-                    company.EPOCH_DATA[i].SIMPLE_MOV_AVG =0
-                    company.EPOCH_DATA[i].MOV_SD =0
-                    if i!=0:
-                        company.EPOCH_DATA[i].SIMPLE_MOV_AVG = functions.simMovAvg(company.EPOCH_DATA.PRICE[:i+1],company.EPOCH_DATA[i].SIMPLE_MOV_AVG,n)
-                        company.EPOCH_DATA[i].MOV_SD = functions.movStandDev(company.EPOCH_DATA.PRICE,company.EPOCH_DATA[i-1].SIMPLE_MOV_AVG,company.EPOCH_DATA[i].SIMPLE_MOV_AVG,n)
-                    else:
-                        company.EPOCH_DATA[i].SIMPLE_MOV_AVG = functions.simMovAvg(company.EPOCH_DATA.PRICE[:1],company.EPOCH_DATA[0].SIMPLE_MOV_AVG,n)
-                        company.EPOCH_DATA[i].MOV_SD = functions.movStandDev(company.EPOCH_DATA.PRICE,company.EPOCH_DATA[0])
+                for i in range(len(company.EPOCH_DATA)):
+                    if company.EPOCH_DATA[i].TRADING:
+                        company.EPOCH_DATA[i].SIMPLE_MOV_AVG =0
+                        company.EPOCH_DATA[i].MOV_SD =0
+                        if i!=0:
+                            pric=[x.PRICE for x in company.EPOCH_DATA[:i+1]]
+                            company.EPOCH_DATA[i].SIMPLE_MOV_AVG = functions.simMovAvg(pric,company.EPOCH_DATA[i].SIMPLE_MOV_AVG,n)
+                            company.EPOCH_DATA[i].MOV_SD = functions.movStandDev(pric,company.EPOCH_DATA[i-1].SIMPLE_MOV_AVG,company.EPOCH_DATA[i].SIMPLE_MOV_AVG,n)
+                        else:
+                            company.EPOCH_DATA[i].SIMPLE_MOV_AVG = functions.simMovAvg([company.EPOCH_DATA[0].PRICE],company.EPOCH_DATA[0].SIMPLE_MOV_AVG,n)
+                            company.EPOCH_DATA[i].MOV_SD = functions.movStandDev([company.EPOCH_DATA[0].PRICE],company.EPOCH_DATA[0].SIMPLE_MOV_AVG,company.EPOCH_DATA[0].SIMPLE_MOV_AVG,n)
                     
     
     def recalculateExp(self,halfLife):
@@ -172,19 +181,20 @@ class Ui_MainWindow(object):
                     company.EPOCH_DATA[i].EXP_MOV_AVG = 0
                     company.EPOCH_DATA[i].EXP_MOV_SD = 0
                     if i!=0:
-                        company.EPOCH_DATA[i].SIMPLE_MOV_AVG = functions.expMovAvg(company.EPOCH_DATA.PRICE[:i+1],company.EPOCH_DATA[i-1].EXP_MOV_AVG,halfLife)
-                        company.EPOCH_DATA[i].EX_VAR = functions.expVar(company.EPOCH_DATA.PRICE[i-1],company.EPOCH_DATA[i-1].EXP_MOV_AVG,company.EPOCH_DATA[i-1].EX_VAR,halfLife)
+                        company.EPOCH_DATA[i].EXP_MOV_AVG = functions.expMovAvg(company.EPOCH_DATA[i-1].PRICE,company.EPOCH_DATA[i-1].EXP_MOV_AVG,halfLife)
+                        company.EPOCH_DATA[i].EX_VAR = functions.expVar(company.EPOCH_DATA[i-1].PRICE,company.EPOCH_DATA[i-1].EXP_MOV_AVG,company.EPOCH_DATA[i-1].EX_VAR,halfLife)
                         company.EPOCH_DATA[i].EXP_MOV_SD = functions.expMovStandDev(company.EPOCH_DATA[i].EX_VAR)
                     else:
-                        company.EPOCH_DATA[0].SIMPLE_MOV_AVG = functions.expMovAvg(company.EPOCH_DATA.PRICE[:1],company.EPOCH_DATA[0],halfLife)
-                        company.EPOCH_DATA[0].EX_VAR = functions.expVar(company.EPOCH_DATA.PRICE[0],company.EPOCH_DATA[0].EXP_MOV_AVG,company.EPOCH_DATA[0].EX_VAR,halfLife)
+                        company.EPOCH_DATA[0].EXP_MOV_AVG = functions.expMovAvg(company.EPOCH_DATA[0].PRICE,company.EPOCH_DATA[0],halfLife)
+                        company.EPOCH_DATA[0].EX_VAR = functions.expVar(company.EPOCH_DATA[0].PRICE,company.EPOCH_DATA[0].EXP_MOV_AVG,company.EPOCH_DATA[0].EX_VAR,halfLife)
                         company.EPOCH_DATA[0].EXP_MOV_SD = functions.expMovStandDev(company.EPOCH_DATA[0].EX_VAR)
                 
     def refresh(self,n,halfLife):
         if n!=0:
             for company in self.companies:
-                company.EPOCH_DATA[-1].SIMPLE_MOV_AVG = functions.simMovAvg(company.EPOCH_DATA.PRICE,company.EPOCH_DATA[-2].SIMPLE_MOV_AVG,n)
-                company.EPOCH_DATA[-1].MOV_SD = functions.movStandDev(company.EPOCH_DATA.PRICE,company.EPOCH_DATA[-2].SIMPLE_MOV_AVG,company.EPOCH_DATA[-1].SIMPLE_MOV_AVG,n)
+                pric = [x.PRICE for x in company.EPOCH_DATA]
+                company.EPOCH_DATA[-1].SIMPLE_MOV_AVG = functions.simMovAvg(pric,company.EPOCH_DATA[-2].SIMPLE_MOV_AVG,n)
+                company.EPOCH_DATA[-1].MOV_SD = functions.movStandDev(pric,company.EPOCH_DATA[-2].SIMPLE_MOV_AVG,company.EPOCH_DATA[-1].SIMPLE_MOV_AVG,n)
         if halfLife!=0:
             for company in self.companies:
                 company.EPOCH_DATA[-1].EXP_MOV_AVG = functions.expMovAvg(company.EPOCH_DATA.PRICE[-1],company.EPOCH_DATA[-2].EXP_MOV_AVG,halfLife)
@@ -289,20 +299,30 @@ class MplCanvas(FigureCanvas):
     def drawCompany(self,comp):
         xAxis = []
         yAxis = []
-        for e in comp.EPOCH_DATA:
-            xAxis.append(e.TIMESTAMP)
-            yAxis.append(e.PRICE)
+        color = "white"
             #print("Time: ",e.TIMESTAMP, "Price: ",e.PREV_PRICE )
         self.axes.clear()
         self.axes.set_xlabel("Epoch", fontsize=50)
         self.axes.set_ylabel("Price", fontsize=50)
+        
+        for e in comp.EPOCH_DATA:
+            xAxis.append(e.TIMESTAMP)
+            yAxis.append(e.PRICE)
+        self.plotGraph(xAxis,yAxis,color, "-")
+        
+        for e in comp.EPOCH_DATA:
+            xAxis.append(e.TIMESTAMP)
+            yAxis.append(e.EXP_MOV_AVG)
+        self.plotGraph(xAxis,yAxis,color, "--")
+        
+        self.draw()
+        self.changeAnimationElapsed+=1
+
+    def plotGraph(self, xAxis,yAxis, defaultColor, line):
         if self.changeAnimationElapsed <10:
             self.axes.plot(xAxis,yAxis, "red")
         else:
-            self.axes.plot(xAxis,yAxis, "white")
-        self.draw()
-        
-        self.changeAnimationElapsed+=1
+            self.axes.plot(xAxis,yAxis, defaultColor, linestyle =line)
 
     def PlotNextPoint(self):
         """Plots the new location for the projectile each second"""
