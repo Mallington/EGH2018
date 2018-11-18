@@ -14,3 +14,10 @@ class DataStream():
         self.updates = Resource('http://egchallenge.tech/marketdata/latest')
         self.MARKET = Market(self.companiesResource.RESOURCE_DATA)
         self.MARKET.updateCompanies(self.updates.RESOURCE_DATA)
+        
+    def update(self):
+        self.companiesResource.updateResource()
+        self.updates.updateResource()
+        
+    
+    
