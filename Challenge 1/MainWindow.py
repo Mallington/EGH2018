@@ -183,9 +183,6 @@ class MplCanvas(FigureCanvas):
 
     def setupAxis(self):
         """Sets up the axis to stop them from skewing"""
-        #self.axes.set_autoscale_on(True)  # Stops the graph from changing in size, skewing the projectile's motion
-        #self.axes.set_xlim(0, 100)  # Sets the range for the plot to work on
-        #self.axes.set_ylim(0, 100)
         self.axes.set_xlabel("Epoch", fontsize=50)
         self.axes.set_ylabel("Price", fontsize=50)
         self.axes.yaxis.label.set_color("white")
@@ -242,8 +239,6 @@ class MplCanvas(FigureCanvas):
         """Plots the new location for the projectile each second"""
         self.epochs.append(self.__plotCounter)
         self.prices.append(np.random.randint(100))
-        #Get the epochs from your code
-        #get the prices from your code
         self.axes.plot(self.epochs,self.prices, "white") # Plots the points so far
         self.draw()  # Redraws the graph
         self.__plotCounter += 1
