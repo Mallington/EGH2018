@@ -167,7 +167,12 @@ class Ui_MainWindow(object):
                         company.EPOCH_DATA[i].MOV_SD =0
                         if i!=0:
                             pric=[x.PRICE for x in company.EPOCH_DATA[:i+1]]
-                            company.EPOCH_DATA[i].SIMPLE_MOV_AVG = functions.simMovAvg(pric,company.EPOCH_DATA[i].SIMPLE_MOV_AVG,n)
+                            company.EPOCH_DATA[i].SIMPLE_MOV_AVG = functions.simMovAvg(pric,company.EPOCH_DATA[i-1].SIMPLE_MOV_AVG,n)
+                            
+                            
+                            
+                            if(i<10) :
+                                print("pric: ", pric)
                             company.EPOCH_DATA[i].MOV_SD = functions.movStandDev(pric,company.EPOCH_DATA[i-1].SIMPLE_MOV_AVG,company.EPOCH_DATA[i].SIMPLE_MOV_AVG,n)
                         else:
                             company.EPOCH_DATA[i].SIMPLE_MOV_AVG = functions.simMovAvg([company.EPOCH_DATA[0].PRICE],company.EPOCH_DATA[0].SIMPLE_MOV_AVG,n)
@@ -306,13 +311,19 @@ class MplCanvas(FigureCanvas):
         self.axes.set_ylabel("Price", fontsize=50)
         
         for e in comp.EPOCH_DATA:
-            xAxis.append(e.TIMESTAMP)
-            yAxis.append(e.PRICE)
+           xAxis.append(e.TIMESTAMP)
+           yAxis.append(e.PRICE)
         self.plotGraph(xAxis,yAxis,color, "-")
         
+        xAxis = []
+        yAxis = []
         for e in comp.EPOCH_DATA:
-            xAxis.append(e.TIMESTAMP)
-            yAxis.append(e.EXP_MOV_AVG)
+            #if i>wind:
+                if(e.SIMPLE_MOV_AVG !=0):
+                    
+                    xAxis.append(e.TIMESTAMP)
+                    yAxis.append(e.SIMPLE_MOV_AVG)    
+            #i+=1
         self.plotGraph(xAxis,yAxis,color, "--")
         
         self.draw()
