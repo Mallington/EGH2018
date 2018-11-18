@@ -168,7 +168,7 @@ class MplCanvas(FigureCanvas):
         
         self.startProjectile()
 
-
+#gh
     def setupAxis(self):
         """Sets up the axis to stop them from skewing"""
         #self.axes.set_autoscale_on(True)  # Stops the graph from changing in size, skewing the projectile's motion
