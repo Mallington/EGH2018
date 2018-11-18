@@ -108,7 +108,8 @@ class Ui_MainWindow(object):
             halfLife = 0
         else:
             halfLife = int(halfLifeText)
-        self.graph = MplCanvas(self.data,self.companyList,self.mainWidget,halfLife)
+        self.graph = MplCanvas(self.data,self.companyList,self.mainWidget,halfLife, self)
+        
         self.canvas.addWidget(self.graph)
         self.gridLayout_2.addLayout(self.canvas, 1, 7, 1, 11)
         MainWindow.setCentralWidget(self.mainWidget)
@@ -245,8 +246,10 @@ class Ui_MainWindow(object):
 
 class MplCanvas(FigureCanvas):
     """Canvas object for the graph to be plotted within"""
-    def __init__(self, dataPointer,listView,halfLife, parent=None):
+    def __init__(self, dataPointer,listView,halfLife, mainWindow, parent=None):
         """Instantiates the subplots"""
+        self.MAIN_WINDOW = mainWindow
+        
         self.halfLife = halfLife
         self.DATA_POINTER = dataPointer
         self.LIST_VIEW = listView
@@ -294,6 +297,7 @@ class MplCanvas(FigureCanvas):
         if self.DATA_POINTER.isUpdateAvailable():
             self.changeAnimationElapsed =0
             
+            self.MAIN_WINDOW.refresh(self.MAIN_WINDOW.DEFAULT_N ,self.MAIN_WINDOW.HALF_LIFE)
             self.drawCompany(self.DATA_POINTER.MARKET.Companies[self.LIST_VIEW.currentRow()])
         else:
             if self.changeAnimationElapsed <=10:
