@@ -52,6 +52,13 @@ class Company():
         
         
 class Epoch():
+    #Averages
+    SIMPLE_MOV_AVG =0
+    EXP_MOV_AVG =0
+    MOV_SD =0
+    EXP_MOV_SD =0;
+    
+    
     TIMESTAMP = 0;
     PREV_PRICE =0;
     PRICE = 0;

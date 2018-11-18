@@ -27,9 +27,11 @@ def movStandDev(data,lastSMA,curSMA,n):
         var = ((data[-1]-data[-n-1])*(data[-1]-curSMA+data[-n-1]-lastSMA))/(n-1)
         return var**0.5
 
-def expMovStandDev(lastVal,lastEMA,last,halfLife):
+def expVar(lastVal,lastEMA,lastVAR,halfLife):
     a=getα(halfLife)
-    return ((lastEMA+a*(lastVal-LastEMA)**2)*(1-a))**0.5
+    return (lastVAR+a*(lastVal-LastEMA)**2)*(1-a)
 
+def expMovStandDev(expVAR):
+    return (expVAR)**0.5    
 
     

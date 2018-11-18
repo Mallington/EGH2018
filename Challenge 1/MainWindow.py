@@ -18,7 +18,7 @@ from matplotlib.figure import Figure
 import numpy as np
 # In House library
 import DataStream
-
+import functions
 
 class Ui_MainWindow(object):
     
@@ -124,6 +124,48 @@ class Ui_MainWindow(object):
         self.graph.drawCompany(self.companies[self.companyList.currentRow()])
 
 
+    def recalculateSim(self,n):
+        if n!=0:
+            for company in self.companies:
+                for i in range(len(company.EPOCH_DATA)):
+                    company.EPOCH_DATA[i].SIMPLE_MOV_AVG =0
+                    company.EPOCH_DATA[i].MOV_SD =0
+                    if i!=0:
+                        company.EPOCH_DATA[i].SIMPLE_MOV_AVG = functions.simMovAvg(company.EPOCH_DATA.PRICE[:i+1],company.EPOCH_DATA[i].SIMPLE_MOV_AVG,n)
+                        company.EPOCH_DATA[i].MOV_SD = functions.movStandDev(company.EPOCH_DATA.PRICE,company.EPOCH_DATA[i-1].SIMPLE_MOV_AVG,company.EPOCH_DATA[i].SIMPLE_MOV_AVG,n)
+                    else:
+                        company.EPOCH_DATA[i].SIMPLE_MOV_AVG = functions.simMovAvg(company.EPOCH_DATA.PRICE[:1],company.EPOCH_DATA[0].SIMPLE_MOV_AVG,n)
+                        company.EPOCH_DATA[i].MOV_SD = functions.movStandDev(company.EPOCH_DATA.PRICE,company.EPOCH_DATA[0])
+                    
+    
+    def recalculateExp(self,halfLife):
+        if halfLife!=0:
+            for company in self.companies:
+                for i in range(len(company.EPOCH_DATA)):
+                    company.EPOCH_DATA[i].EXP_MOV_AVG = 0
+                    company.EPOCH_DATA[i].EXP_MOV_SD = 0
+                    if i!=0:
+                        company.EPOCH_DATA[i].SIMPLE_MOV_AVG = functions.expMovAvg(company.EPOCH_DATA.PRICE[:i+1],company.EPOCH_DATA[i-1].EXP_MOV_AVG,halfLife)
+                        company.EPOCH_DATA[i].EX_VAR = functions.expVar(company.EPOCH_DATA.PRICE[i-1],company.EPOCH_DATA[i-1].EXP_MOV_AVG,company.EPOCH_DATA[i-1].EX_VAR,halfLife)
+                        company.EPOCH_DATA[i].EXP_MOV_SD = functions.expMovStandDev(company.EPOCH_DATA[i].EX_VAR)
+                    else:
+                        company.EPOCH_DATA[0].SIMPLE_MOV_AVG = functions.expMovAvg(company.EPOCH_DATA.PRICE[:1],company.EPOCH_DATA[0],halfLife)
+                        company.EPOCH_DATA[0].EX_VAR = functions.expVar(company.EPOCH_DATA.PRICE[0],company.EPOCH_DATA[0].EXP_MOV_AVG,company.EPOCH_DATA[0].EX_VAR,halfLife)
+                        company.EPOCH_DATA[0].EXP_MOV_SD = functions.expMovStandDev(company.EPOCH_DATA[0].EX_VAR)
+                
+    def refresh(self,n,halfLife):
+        if n!=0:
+            for company in self.companies:
+                company.EPOCH_DATA[-1].SIMPLE_MOV_AVG = functions.simMovAvg(company.EPOCH_DATA.PRICE,company.EPOCH_DATA[-2].SIMPLE_MOV_AVG,n)
+                company.EPOCH_DATA[-1].MOV_SD = functions.movStandDev(company.EPOCH_DATA.PRICE,company.EPOCH_DATA[-2].SIMPLE_MOV_AVG,company.EPOCH_DATA[-1].SIMPLE_MOV_AVG,n)
+        if halfLife!=0:
+            for company in self.companies:
+                company.EPOCH_DATA[-1].EXP_MOV_AVG = functions.expMovAvg(company.EPOCH_DATA.PRICE[-1],company.EPOCH_DATA[-2].EXP_MOV_AVG,halfLife)
+                company.EPOCH_DATA[-1].EX_VAR = functions.expVar(company.EPOCH_DATA.PRICE[-1],company.EPOCH_DATA[-2].EXP_MOV_AVG,company.EPOCH_DATA[-2].EX_VAR,halfLife)
+                company.EPOCH_DATA[-1].EXP_MOV_SD = functions.expMovStandDev(company.EPOCH_DATA[-1].EX_VAR)
+
+    
+
     def changeTheme(self,mode):
         if mode == 0:
             self.lbl7.setStyleSheet("color: rgb(40, 43, 48);")
@@ -216,14 +258,14 @@ class MplCanvas(FigureCanvas):
             if self.changeAnimationElapsed <=10:
                 self.drawCompany(self.DATA_POINTER.MARKET.Companies[self.LIST_VIEW.currentRow()])
         
-        
+    
 
     def drawCompany(self,comp):
         xAxis = []
         yAxis = []
         for e in comp.EPOCH_DATA:
             xAxis.append(e.TIMESTAMP)
-            yAxis.append(e.PREV_PRICE)
+            yAxis.append(e.PRICE)
             #print("Time: ",e.TIMESTAMP, "Price: ",e.PREV_PRICE )
         self.axes.clear()
         self.axes.set_xlabel("Epoch", fontsize=50)
