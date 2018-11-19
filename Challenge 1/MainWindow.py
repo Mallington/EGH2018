@@ -68,14 +68,14 @@ class Ui_MainWindow(object):
         self.comboBox2.addItem("  60  ")
         self.comboBox2.activated[str].connect(self.changeEpoch)
 
-
+        self.averageShowing = False
         self.companies = self.data.MARKET.Companies
 
-        self.DEFAULT_N = 20
+        self.n=0
         self.HALF_LIFE = 0
 
 
-        self.recalculateSim(self.DEFAULT_N)
+        self.recalculateSim()
         self.recalculateExp(self.HALF_LIFE)
 
         i = 0
@@ -97,6 +97,7 @@ class Ui_MainWindow(object):
         self.gridLayout_2.addWidget(self.searchbar, 0, 0, 1, 1)
         self.searchButton = QtWidgets.QPushButton(self.mainWidget)
         self.searchButton.setObjectName("searchButton")
+        self.searchButton.clicked.connect(self.searchKeyWord)
         self.gridLayout_2.addWidget(self.searchButton, 0, 1, 1, 1)
         self.lbl7 = QtWidgets.QLabel(self.mainWidget)
         self.lbl7.setObjectName("lbl7")
@@ -117,7 +118,7 @@ class Ui_MainWindow(object):
             window = 0.5
         else:
             window = float(windowText)
-        self.graph = MplCanvas(self.data,self.companyList,self.mainWidget,halfLife, self)
+        self.graph = MplCanvas(self.data,self.companyList,halfLife,self.mainWidget, self.averageShowing,self)
         self.canvas.addWidget(self.graph)
         self.gridLayout_2.addLayout(self.canvas, 1, 7, 1, 11)
         MainWindow.setCentralWidget(self.mainWidget)
@@ -135,6 +136,10 @@ class Ui_MainWindow(object):
 
     def searchKeyWord(self):
         self.setAllListsHidden(True)
+        for i in range(self.companyList.count()):
+            if self.searchbar.text().lower() in self.companies[i].COMPANY_NAME.lower():
+                self.companyList.item(i).setHidden(False)
+                
 
 
 
@@ -165,13 +170,19 @@ class Ui_MainWindow(object):
         self.graph.drawCompany(self.companies[self.companyList.currentRow()])
 
     def changeEpoch(self, text):
-        n = int(text)
-        self.recalculateSim(self.DEFAULT_N)
-        #self.graph.
-        print(n)
+        self.n = int(text)
+        if self.n!=0:
+            self.graph.averageShowing = True
+        else:
+            self.graph.averageShowing = False
+        self.recalculateSim()
+        self.graph.forceUpdate()
+        
+    
 
-    def recalculateSim(self,n):
-        if n!=0:
+    
+    def recalculateSim(self):
+        if self.n!=0:
             for company in self.companies:
                 for i in range(len(company.EPOCH_DATA)):
                     if company.EPOCH_DATA[i].TRADING:
@@ -179,16 +190,11 @@ class Ui_MainWindow(object):
                         company.EPOCH_DATA[i].MOV_SD =0
                         if i!=0:
                             pric=[x.PRICE for x in company.EPOCH_DATA[:i+1]]
-                            company.EPOCH_DATA[i].SIMPLE_MOV_AVG = functions.simMovAvg(pric,company.EPOCH_DATA[i-1].SIMPLE_MOV_AVG,n)
-
-
-
-                            if(i<10) :
-                                print("pric: ", pric)
-                            company.EPOCH_DATA[i].MOV_SD = functions.movStandDev(pric,company.EPOCH_DATA[i-1].SIMPLE_MOV_AVG,company.EPOCH_DATA[i].SIMPLE_MOV_AVG,n)
+                            company.EPOCH_DATA[i].SIMPLE_MOV_AVG = functions.simMovAvg(pric,company.EPOCH_DATA[i-1].SIMPLE_MOV_AVG,self.n)
+                            company.EPOCH_DATA[i].MOV_SD = functions.movStandDev(pric,company.EPOCH_DATA[i-1].SIMPLE_MOV_AVG,company.EPOCH_DATA[i].SIMPLE_MOV_AVG,self.n)
                         else:
-                            company.EPOCH_DATA[i].SIMPLE_MOV_AVG = functions.simMovAvg([company.EPOCH_DATA[0].PRICE],company.EPOCH_DATA[0].SIMPLE_MOV_AVG,n)
-                            company.EPOCH_DATA[i].MOV_SD = functions.movStandDev([company.EPOCH_DATA[0].PRICE],company.EPOCH_DATA[0].SIMPLE_MOV_AVG,company.EPOCH_DATA[0].SIMPLE_MOV_AVG,n)
+                            company.EPOCH_DATA[i].SIMPLE_MOV_AVG = functions.simMovAvg([company.EPOCH_DATA[0].PRICE],company.EPOCH_DATA[0].SIMPLE_MOV_AVG,self.n)
+                            company.EPOCH_DATA[i].MOV_SD = functions.movStandDev([company.EPOCH_DATA[0].PRICE],company.EPOCH_DATA[0].SIMPLE_MOV_AVG,company.EPOCH_DATA[0].SIMPLE_MOV_AVG,self.n)
 
 
     def recalculateExp(self,halfLife):
@@ -206,12 +212,12 @@ class Ui_MainWindow(object):
                         company.EPOCH_DATA[0].EX_VAR = functions.expVar(company.EPOCH_DATA[0].PRICE,company.EPOCH_DATA[0].EXP_MOV_AVG,company.EPOCH_DATA[0].EX_VAR,halfLife)
                         company.EPOCH_DATA[0].EXP_MOV_SD = functions.expMovStandDev(company.EPOCH_DATA[0].EX_VAR)
 
-    def refresh(self,n,halfLife):
-        if n!=0:
+    def refresh(self,halfLife):
+        if self.n!=0:
             for company in self.companies:
                 pric = [x.PRICE for x in company.EPOCH_DATA]
-                company.EPOCH_DATA[-1].SIMPLE_MOV_AVG = functions.simMovAvg(pric,company.EPOCH_DATA[-2].SIMPLE_MOV_AVG,n)
-                company.EPOCH_DATA[-1].MOV_SD = functions.movStandDev(pric,company.EPOCH_DATA[-2].SIMPLE_MOV_AVG,company.EPOCH_DATA[-1].SIMPLE_MOV_AVG,n)
+                company.EPOCH_DATA[-1].SIMPLE_MOV_AVG = functions.simMovAvg(pric,company.EPOCH_DATA[-2].SIMPLE_MOV_AVG,self.n)
+                company.EPOCH_DATA[-1].MOV_SD = functions.movStandDev(pric,company.EPOCH_DATA[-2].SIMPLE_MOV_AVG,company.EPOCH_DATA[-1].SIMPLE_MOV_AVG,self.n)
         if halfLife!=0:
             for company in self.companies:
                 company.EPOCH_DATA[-1].EXP_MOV_AVG = functions.expMovAvg(company.EPOCH_DATA.PRICE[-1],company.EPOCH_DATA[-2].EXP_MOV_AVG,halfLife)
@@ -255,15 +261,13 @@ class Ui_MainWindow(object):
 
 class MplCanvas(FigureCanvas):
     """Canvas object for the graph to be plotted within"""
-    
 
-    def __init__(self, dataPointer,listView,halfLife, mainWindow, parent=None):
+    def __init__(self, dataPointer,listView,halfLife, mainWindow, averageShowing, parent=None):
 
         """Instantiates the subplots"""
         self.MAIN_WINDOW = mainWindow
-        
+        self.averageShowing = averageShowing        
         self.halfLife = halfLife
-        #self.window = window
         self.DATA_POINTER = dataPointer
         self.LIST_VIEW = listView
         self.fig = Figure()
@@ -303,25 +307,23 @@ class MplCanvas(FigureCanvas):
         self.timer.timeout.connect(self.updateData)
         self.timer.start(100)  # Needs to only start when the button pressed
 
-    def forceUpdate(self):
-        self.drawCompany(self.DATA_POINTER.MARKET.Companies[self.LIST_VIEW.currentRow()])
-
     def updateData(self):
-        
+
         self.DATA_POINTER.update()
 
         if self.DATA_POINTER.isUpdateAvailable():
             self.changeAnimationElapsed =0
 
             
-            self.MAIN_WINDOW.refresh(self.MAIN_WINDOW.DEFAULT_N ,self.MAIN_WINDOW.HALF_LIFE)
+            #self.MAIN_WINDOW.refresh(self.MAIN_WINDOW.HALF_LIFE)
 
             self.drawCompany(self.DATA_POINTER.MARKET.Companies[self.LIST_VIEW.currentRow()])
         else:
             if self.changeAnimationElapsed <=10:
                 self.drawCompany(self.DATA_POINTER.MARKET.Companies[self.LIST_VIEW.currentRow()])
 
-
+    def forceUpdate(self):
+        self.drawCompany(self.DATA_POINTER.MARKET.Companies[self.LIST_VIEW.currentRow()])
 
     def drawCompany(self,comp):
         xAxis = []
@@ -339,14 +341,16 @@ class MplCanvas(FigureCanvas):
 
         xAxis = []
         yAxis = []
-        for e in comp.EPOCH_DATA:
-            #if i>wind:
-                if(e.SIMPLE_MOV_AVG !=0):
-
-                    xAxis.append(e.TIMESTAMP)
-                    yAxis.append(e.SIMPLE_MOV_AVG)
-            #i+=1
-        self.plotGraph(xAxis,yAxis,color, "--")
+        if self.averageShowing:
+                
+            for e in comp.EPOCH_DATA:
+                #if i>wind:
+                    if(e.SIMPLE_MOV_AVG !=0):
+    
+                        xAxis.append(e.TIMESTAMP)
+                        yAxis.append(e.SIMPLE_MOV_AVG)
+                #i+=1
+            self.plotGraph(xAxis,yAxis,color, "--")
 
         self.draw()
         self.changeAnimationElapsed+=1
